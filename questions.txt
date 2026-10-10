@@ -1,0 +1,11 @@
+(1) 
+real (0m0.014s): Total elapsed wall-clock time from start to finish.
+user (0m0.008s): CPU time spent in user-space code (string searching, allocation, formatting).
+sys (0m0.005s): CPU time spent in kernel-space system calls (open, read/getline, write).
+
+(2) Data races occur when multiple threads concurrently write to shared counters or append to a shared instances array without synchronization. We prevented them entirely without lock contention by partitioning the file into disjoint chunks and allocating private thread-local storage inside each worker's arguments struct. Threads write solely to their independent buffers, and results are sequentially aggregated after pthread_join().
+
+(3) OpenMP differs from POSIX pthreads in three key ways:
+1. Programming Model: OpenMP uses declarative compiler directives (#pragma omp parallel for) to automate thread creation and joining, whereas pthreads requires explicit, imperative calls like pthread_create and pthread_join.
+2. Variable Handling: OpenMP manages variable scoping implicitly via shared/private semantics, eliminating pthreads' need to manually pack and unpack struct pointers.
+3. Thread Management: OpenMP relies on a reusable thread pool to minimize runtime overhead, while raw pthreads incurs the cost of creating and tearing down OS threads on demand.
